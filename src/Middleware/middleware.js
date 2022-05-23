@@ -44,7 +44,7 @@ const authorization = async function (req, res, next) {
     const findbookdatabyId = await BookModel.findById(id).select({ userId: 1 })
     //console.log(findbookdatabyId)
     if (!findbookdatabyId) {
-      return res.status(400).send({ status: false, msg: "Incorrect BookId" });
+      return res.status(404).send({ status: false, msg: "Incorrect BookId"});
     }
 
     let decodedtoken = jwt.verify(token, "group51");

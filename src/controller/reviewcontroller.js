@@ -245,7 +245,7 @@ const deleteReview = async (req, res) => {
     if (!reviewIdExist) {
       return res.status(404).send({ status: false, message: "No Review Exist With this reviewId" })
     }
-    let decreasereview = await BookModel.findOneAndUpdate({ _id: bookId, isDeleted: false }, { $set: { reviews: countreviews - 1 } }, { new: true, upsert: true })
+    let decreasereview = await BookModel.findOneAndUpdate({ _id: bookId, isDeleted: false }, { $set: { reviews: countreviews - 1 } }, { new: true })
     let deletereview = await reviewModel.findOneAndUpdate({ _id: reviewId, bookId: bookId, isDeleted: false }, { $set: { isDeleted: true } }, { new: true, upsert: true })
 
 

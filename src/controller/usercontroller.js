@@ -135,7 +135,7 @@ if(data.address){
   }
 
   catch (err) {
-    res.status(500).send({ status: false, error: err.message });
+    return res.status(500).send({ status: false, error: err.message });
   }
 };
 

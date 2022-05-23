@@ -13,6 +13,11 @@ const bookSchema = new mongoose.Schema({
         trim: true,
         required: true
     },
+    bookcover:{
+        type:String,
+        trim:true
+    },
+
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,

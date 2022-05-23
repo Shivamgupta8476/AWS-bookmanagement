@@ -3,6 +3,7 @@ const userModel = require("../Models/usermodel")
 const reviewModel = require("../Models/reviewmodel")
 const jwt = require("jsonwebtoken");
 const mongoose = require('mongoose')
+const aws= require("aws-sdk")
 
 
 
@@ -23,29 +24,54 @@ const isValidDate = (date) => {
   return String(date).trim().match(/((18|19|20)[0-9]{2}[\-.](0[13578]|1[02])[\-.](0[1-9]|[12][0-9]|3[01]))|(18|19|20)[0-9]{2}[\-.](0[469]|11)[\-.](0[1-9]|[12][0-9]|30)|(18|19|20)[0-9]{2}[\-.](02)[\-.](0[1-9]|1[0-9]|2[0-8])|(((18|19|20)(04|08|[2468][048]|[13579][26]))|2000)[\-.](02)[\-.]29/)
 }
 
+//.............................................AWS CONNECTION......................................................
 
+aws.config.update({
+  accessKeyId: "AKIAY3L35MCRVFM24Q7U",
+  secretAccessKey: "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",
+  region: "ap-south-1"
+})
+
+let uploadFile= async ( file) =>{
+ return new Promise( function(resolve, reject) {
+  // this function will upload file to aws and return the link
+  let s3= new aws.S3({apiVersion: '2006-03-01'}); // we will be using the s3 service of aws
+
+  var uploadParams= {
+      ACL: "public-read",
+      Bucket: "classroom-training-bucket",  //HERE
+      Key: "Shivam/" + file.originalname, //HERE
+      Body: file.buffer
+  }
+
+
+  s3.upload( uploadParams, function (err, data ){
+      if(err) {
+          return reject({"error": err})
+      }
+      console.log(data)
+      console.log("file uploaded succesfully")
+      return resolve(data.Location)
+  })
+
+  // let data= await s3.upload( uploadParams)
+  // if( data) return data.Location
+  // else return "there is an error"
+
+ })
+}
 
 //.............................................POST/books........................................................
 
 
 const createBook = async (req, res) => {
   try {
-
-
-
-
     const data = req.body;
 
-
-
-    if (Object.keys(data).length == 0) {
+     if (Object.keys(data).length == 0) {
       return res.status(400).send({ status: false, message: "Feild Can't Empty.Please Enter Some Details" });
     }
-    const obj = {
-
-
-
-    }
+    const obj = { }
     const title = data.title;
     const excerpt = data.excerpt;
     const userId = data.userId;
@@ -162,7 +188,18 @@ const createBook = async (req, res) => {
       return res.status(401).send({ status: false, message: "You are Not Authorized To create This Book With This userId" });
     }
 
+    let files= req.files
+    if(files && files.length>0){
+        //upload to s3 and get the uploaded link
+        // res.send the link back to frontend/postman
+        let uploadedFileURL= await uploadFile( files[0] )
+        obj.bookcover=uploadedFileURL
+    }
+    else{
+        return res.status(400).send({ msg: "No file found" })
+    }
     const Books = await BookModel.create(obj);
+
     return res.status(201).send({ status: true, message:"Success",data:Books });
 
   }

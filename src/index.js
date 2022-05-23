@@ -4,15 +4,20 @@ const route = require('./routes/route.js');
 const { default: mongoose } = require('mongoose');
 const app = express();
 
+
+const multer= require("multer");
+const { AppConfig } = require('aws-sdk');
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-mongoose.connect("mongodb+srv://saurabhtripathi:PRV2tzfzbonBUIPX@cluster0.qeoom.mongodb.net/Project-3_51", {
+mongoose.connect("mongodb+srv://saurabhtripathi:knk1UnvgHtDySHWR@cluster0.qeoom.mongodb.net/Project-3_51", {
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected"))
 .catch ( err => console.log(err) )
+app.use( multer().any())
 
 
 app.use('/', route)
